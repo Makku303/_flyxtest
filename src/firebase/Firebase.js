@@ -66,6 +66,17 @@ class Firebase {
     return await user.update({ posts: firestore.FieldValue.arrayRemove(postid) })
   }
 
+  editPost = async (uid, postid) => {
+    const user = await this.user(uid)
+    return await user.update({ posts: firestore.FieldValue.arrayUnion(postid) })
+  }
+
+  addVote = async (postId, post) =>{
+    return await this.db.collection("flights").doc(postId).update({
+      current: post.current + 1
+    });
+  }
+
   flights = () => {
     return this.db.collection('flights')
   }

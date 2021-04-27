@@ -154,6 +154,7 @@ class AddFlight extends Component {
     if (country) {
       const airportModelsCountry = airport.filter((model) => model.get('country') == country)
       const airports = airportModelsCountry.map((city) => city.get('name'))
+      airports.sort()
       return (airports.map((airport) => {
         return <option value={airport}>{airport}</option>
       }))

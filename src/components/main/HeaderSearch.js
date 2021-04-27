@@ -37,7 +37,8 @@ const styles = {
 */
 class HeaderSearch extends Component {
   state = {
-    focused: false
+    focused: false,
+    keyword: ''
   }
 
   render() {
@@ -51,20 +52,26 @@ class HeaderSearch extends Component {
             placeholder="Search"
             onFocus={this.focus.bind(this)}
             onBlur={this.unfocus.bind(this)}
+            //onChange={this.handleChange}
           />
         </Box>
       </div>
     )
   }
 
-  focus() {
+  handleChange = event => {
+    // const { value } = event.target;
+    this.setState({ keyword: event.target });
+  };
+
+  focus(e) {
     this.setState({ focused: true })
-    this.props.focus()
+    this.props.focus(e)
   }
 
-  unfocus() {
+  unfocus(e) {
     this.setState({ focused: false })
-    this.props.blur()
+    this.props.blur(e)
   }
 }
 
@@ -76,11 +83,11 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return ({
-    focus() {
-      dispatch(uiAction.searchFocus())
+    focus(e) {
+      dispatch(uiAction.searchFocus(e.target.value))
     },
-    blur() {
-      dispatch(uiAction.searchBlur())
+    blur(e) {
+      dispatch(uiAction.searchBlur(e.target.value))
     }
   })
 }

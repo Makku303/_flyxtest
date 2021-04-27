@@ -3,7 +3,8 @@ export default {
     showLoading: 'UI/SHOW_LOADING',
     hideLoading: 'UI/HIDE_LOADING',
     focusSearch: 'UI/FOCUS_SEARCH',
-    blurSearch: 'UI/BLUR_SEARCH'
+    blurSearch: 'UI/BLUR_SEARCH',
+    loadFlights: 'UI/LOAD_FLIGHTS',
   },
   auth: {
     setUser: 'AUTH/SET_USER',

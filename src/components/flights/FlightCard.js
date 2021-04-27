@@ -4,9 +4,14 @@ import Icon from '@mdi/react'
 import airport from 'airport-codes'
 import moment from 'moment'
 import { mdiAirplane } from '@mdi/js'
-import { Box } from '@material-ui/core'
+import { Box, IconButton } from '@material-ui/core'
 import { Overlay } from '.'
 import { grey } from '@material-ui/core/colors'
+import {Edit, Delete} from '@material-ui/icons'
+import EditFlight from './EditFlight'
+import DeleteFlight from './DeleteFlight'
+import { withFirebase } from '../../firebase'
+import { connect } from 'react-redux'
 
 const cardHeight = 300
 const cardWidth = 236
@@ -57,11 +62,13 @@ const styles = {
 class FlightCard extends Component {
 
   state = {
-    hovered: false
+    hovered: false,
+    editFlight: false,
+    deleteFlight: false
   }
 
   render() {
-    const { details } = this.props
+    const { details, postId } = this.props
     const { hovered } = this.state
     return (
       <div style={styles.container}
@@ -69,18 +76,49 @@ class FlightCard extends Component {
         onMouseLeave={this.unhover.bind(this)}
       >
         <Box style={styles.card}>
-          {this.renderFlight(details)}
+          {this.renderFlight(details, postId)}
         </Box>
         <Overlay show={hovered} style={styles.overlay} styleShown={styles.overlayShown} styleHidden={styles.overlayHidden} />
       </div>
     )
   }
 
-  renderFlight(details) {
+  async openFlightDetails(details){
+    this.setState({ editFlight: true, data: details})
+  }
+
+  async deleteFlightDetails(postId){
+    this.setState({ deleteFlight: true, postId: postId})
+  }
+
+  async addVote(postId, post){
+    this.props.firebase.addVote(postId, post)
+  }
+
+  renderFlight(details, postId) {   
+    const { editFlight, deleteFlight } = this.state 
     return (
       <div style={{ height: '97%', width: '97%', borderRadius: 8, backgroundColor: grey[200] }}>
-        <div style={{ height: '65%', fontFamily: 'Open Sans Condensed', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: 120 }}>
-          {details.current}
+        <div style={{ height: '5%', right: 10, display: 'flex', zIndex:1, justifyContent: 'space-between', margin: '2px 0px' }}>
+          <IconButton onClick={() => this.openFlightDetails(details)} style={{ zIndex:10, width: 10, height: 10 }}>
+          {
+            !!editFlight ? <EditFlight open={editFlight} data={details} postId={postId} onClose={() => this.setState({ editFlight: false })} />
+            : null
+          }
+            <Edit />
+          </IconButton>
+          <IconButton  onClick={() => this.deleteFlightDetails(postId)} style={{ zIndex:10, width: 10, height: 10 }}>
+            {
+              !!deleteFlight ? <DeleteFlight open={deleteFlight} postId={postId} onClose={() => this.setState({ deleteFlight: false })} />
+              : null
+            }
+            <Delete />
+          </IconButton>
+        </div>
+        <div style={{ height: '55%', cursor: 'pointer', position: 'relative', zIndex:99}} onClick={()=>this.addVote(postId, details)}>
+          <div style={{ fontFamily: 'Open Sans Condensed', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: 120, zIndex:99 }}>
+            {details.current}
+          </div>
         </div>
         <div style={{ height: '10%', display: 'flex', justifyContent: 'center' }}>
           {moment(details.date).format("LL")}
@@ -132,4 +170,10 @@ FlightCard.propTypes = {
   item: PropTypes.object
 }
 
-export default FlightCard
+const mapStateToProps = (state) => ({
+  userId: state.auth.user.uid
+})
+
+export default connect(
+  mapStateToProps
+)(withFirebase(FlightCard))
